@@ -136,6 +136,96 @@ Afterwards, start the development services:
 pnpm run dev:services:up
 ```
 
+## Testing Local Changes
+
+When you make changes to Mastra packages and want to test them with agents or workflows, use the `examples/agent` directory.
+
+### Using examples/agent for Local Testing
+
+The `examples/agent` directory is configured to use your local Mastra packages through pnpm overrides. This means any changes you make to Mastra will be reflected immediately when you run the example.
+
+1. **Build the packages you modified**:
+
+   ```bash
+   # From the monorepo root
+   pnpm build:core        # If you modified the core package
+   pnpm build:memory      # If you modified the memory package
+   # Or build all packages at once
+   pnpm build
+   ```
+
+2. **Add your agent or workflow to `examples/agent`**:
+
+   Navigate to `examples/agent/src/mastra/` and add your code:
+   - **For agents**: Create or edit files in `src/mastra/agents/`
+   - **For workflows**: Create or edit files in `src/mastra/workflows/`
+   - **For tools**: Create or edit files in `src/mastra/tools/`
+
+3. **Register your agent/workflow in the Mastra config**:
+
+   Edit `examples/agent/src/mastra/index.ts` to register your agent or workflow:
+
+   ```typescript
+   // Import your agent or workflow
+   import { myTestAgent } from './agents/my-test-agent';
+   import { myTestWorkflow } from './workflows/my-test-workflow';
+
+   const config = {
+     agents: {
+       // ... existing agents
+       myTestAgent, // Add your agent here
+     },
+     workflows: {
+       // ... existing workflows
+       myTestWorkflow, // Add your workflow here
+     },
+     // ... rest of config
+   };
+   ```
+
+4. **Start Mastra Studio**:
+
+   ```bash
+   cd examples/agent
+   pnpm mastra:dev
+   ```
+
+   This will start the Mastra Studio at `http://localhost:4111`, where you can:
+   - Test your agents interactively
+   - Run and debug workflows
+   - View execution traces
+   - Test tools
+
+5. **Iterate on your changes**:
+   - Make changes to the Mastra packages
+   - Rebuild the modified packages (`pnpm build:core`, etc.)
+   - The changes will be reflected in the running example
+   - Refresh or restart the studio to see your changes
+
+### Example Workflow
+
+Here's a typical workflow for fixing a bug in Mastra:
+
+1. Find a bug in your own project that uses Mastra
+2. Clone the Mastra repository locally
+3. Make your fix in the relevant package (e.g., `packages/core`)
+4. Build the package: `pnpm build:core`
+5. Add a test agent/workflow to `examples/agent/src/mastra/`
+6. Register it in `examples/agent/src/mastra/index.ts`
+7. Run `cd examples/agent && pnpm mastra:dev`
+8. Test your fix in the Mastra Studio at `http://localhost:4111`
+9. Once verified, write tests for your fix and submit a PR
+
+### Other Example Directories
+
+While `examples/agent` is the primary directory for testing, you can also use other example directories. Each example that has a `mastra:dev` script can be used similarly:
+
+- `examples/a2a` - Agent-to-agent communication
+- `examples/agui` - Agent UI examples
+- `examples/ai-sdk-v5` - AI SDK v5 integration
+
+All example directories use pnpm overrides to link to local packages, so they will all use your local changes.
+
 ## Contributing
 
 1. **Create a branch for your changes**:
